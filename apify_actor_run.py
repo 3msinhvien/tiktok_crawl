@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 import os
 
-# Token từ biến môi trường
+# Token tu bien moi truong
 client = ApifyClient()
 
 run_input = {
@@ -19,8 +19,8 @@ run_input = {
 }
 
 RESULT_DIR = "result"
-SLEEP_DURATION = 300  # 5 phút
-MAX_RUNS = None       # None = chạy vô hạn
+SLEEP_DURATION = 300  # nghi 5 phut
+MAX_RUNS = None       # None = chay lien tuc
 
 def crawl_tiktok():
     try:
