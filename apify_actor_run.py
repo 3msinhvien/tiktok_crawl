@@ -1,27 +1,52 @@
 from apify_client import ApifyClient
 import json
+import time
+from datetime import datetime
+import os
 
-# You can find your API token at https://console.apify.com/settings/integrations.
-client  = ApifyClient()
+# Token từ biến môi trường
+client = ApifyClient()
 
 run_input = {
     "isDownloadVideo": True,
     "isDownloadVideoCover": True,
     "isUnlimited": False,
-    "limit": 1,
+    "limit": 10,
     "publishTime": "MONTH",
-    "region": "JP",
+    "region": "VN",
     "sortType": 0,
     "type": "TREND"
 }
 
-run = client.actor("novi/fast-tiktok-api").call(run_input=run_input)
+RESULT_DIR = "result"
+SLEEP_DURATION = 300  # 5 phút
+MAX_RUNS = None       # None = chạy vô hạn
 
-# Collect all items into a list first
-items = []
-for item in client.dataset(run["defaultDatasetId"]).iterate_items():
-    items.append(item)
+def crawl_tiktok():
+    try:
+        print(f"Starting crawl at {datetime.now()}")
+        run = client.actor("novi/fast-tiktok-api").call(run_input=run_input)
 
-# Write as properly formatted JSON
-with open("scan_results_jp.json", "w", encoding="utf-8") as f:
-    json.dump(items, f, ensure_ascii=False, indent=2)
+        items = list(client.dataset(run["defaultDatasetId"]).iterate_items())
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        os.makedirs(RESULT_DIR, exist_ok=True)
+        filename = f"{RESULT_DIR}/scan_results_{timestamp}.json"
+
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(items, f, ensure_ascii=False, indent=2)
+
+        print(f"✅ Crawl completed. Saved {len(items)} items to {filename}")
+        return True
+
+    except Exception as e:
+        print(f"❌ Error during crawl: {e}")
+        return False
+
+run_count = 0
+while MAX_RUNS is None or run_count < MAX_RUNS:
+    run_count += 1
+    print(f"\n--- Run {run_count} ---")
+    crawl_tiktok()
+    print(f"Sleeping {SLEEP_DURATION} seconds...\n")
+    time.sleep(SLEEP_DURATION)
