@@ -11,6 +11,9 @@ scan_results_*.json
 downloads/
 output/
 data/
+JP_result/
+result/
+temp_res/
 
 # Python
 __pycache__/
