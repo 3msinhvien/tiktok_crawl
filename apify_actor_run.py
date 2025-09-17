@@ -46,10 +46,9 @@ def crawl_tiktok(thread_id):
     try:
         print(f"[Thread {thread_id}] Starting crawl at {datetime.now()}")
 
-        # gọi actor với memory=128MB + timeout 30 phút
+        # gọi actor với timeout 30 phút
         run = client.actor("novi/fast-tiktok-api").call(
             run_input=run_input,
-            memory=128,
             timeout_secs=1800
         )
 
