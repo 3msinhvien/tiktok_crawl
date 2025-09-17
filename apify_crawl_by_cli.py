@@ -14,7 +14,6 @@ STOP_FLAG = False       # để stop khi Ctrl+C
 
 # Nếu apify không nằm trong PATH, thay bằng đường dẫn tuyệt đối tới apify.cmd
 APIFY_CLI = r"C:\Users\Do Tung\AppData\Roaming\npm\apify.cmd"  
-# Ví dụ: APIFY_CLI = r"C:\Users\<username>\AppData\Roaming\npm\apify.cmd"
 
 
 def crawl_tiktok(thread_id):
@@ -64,27 +63,26 @@ def run_crawler_thread(thread_id):
 
 def main():
     global STOP_FLAG
-    print("🚀 Starting 2 parallel TikTok crawlers...")
+    print("🚀 Starting 4 parallel TikTok crawlers...")
 
-    # tạo 2 thread
-    thread1 = threading.Thread(target=run_crawler_thread, args=(1,))
-    thread2 = threading.Thread(target=run_crawler_thread, args=(2,))
+    # tạo 4 thread
+    threads = []
+    for i in range(1, 5):
+        t = threading.Thread(target=run_crawler_thread, args=(i,))
+        threads.append(t)
+        t.start()
 
-    # khởi chạy
-    thread1.start()
-    thread2.start()
-
-    print("✅ Both threads started successfully!")
-    print("Press Ctrl+C to stop both crawlers...")
+    print("✅ All 4 threads started successfully!")
+    print("Press Ctrl+C to stop crawlers...")
 
     try:
-        while thread1.is_alive() or thread2.is_alive():
+        while any(t.is_alive() for t in threads):
             time.sleep(1)
     except KeyboardInterrupt:
         print("\n🛑 Stopping crawlers...")
         STOP_FLAG = True
-        thread1.join()
-        thread2.join()
+        for t in threads:
+            t.join()
         print("✅ All threads stopped.")
 
 
